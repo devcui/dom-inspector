@@ -1,6 +1,6 @@
 /*
- * DomInspector v1.2.4-beta.0
- * (c) 2020 luoye <luoyefe@gmail.com>
+ * DomInspector v1.2.5
+ * (c) 2025 luoye <luoyefe@gmail.com>
  */
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
@@ -16,15 +16,16 @@ function __$styleInject (css, returnValue) {
   var head = document.head || document.getElementsByTagName('head')[0];
   var style = document.createElement('style');
   style.type = 'text/css';
+  head.appendChild(style);
+  
   if (style.styleSheet){
     style.styleSheet.cssText = css;
   } else {
     style.appendChild(document.createTextNode(css));
   }
-  head.appendChild(style);
   return returnValue;
 }
-__$styleInject(".dom-inspector {\n    position: fixed;\n    pointer-events: none;\n}\n\n.dom-inspector>div {\n\tposition: absolute;\n}\n\n.dom-inspector .tips {\n\tbackground-color: #333740;\n\tfont-size: 0;\n\tline-height: 18px;\n\tpadding: 3px 10px;\n\tposition: fixed;\n\tborder-radius: 4px;\n\tdisplay: none;\n}\n\n.dom-inspector .tips.reverse{\n\n}\n\n.dom-inspector .tips .triangle {\n\twidth: 0;\n\theight: 0;\n\tposition: absolute;\n\tborder-top: 8px solid #333740;\n\tborder-right: 8px solid transparent;\n\tborder-bottom: 8px solid transparent;\n\tborder-left: 8px solid transparent;\n\tleft: 10px;\n\ttop: 24px;\n}\n\n.dom-inspector .tips.reverse .triangle {\n\tborder-top: 8px solid transparent;\n\tborder-right: 8px solid transparent;\n\tborder-bottom: 8px solid #333740;\n\tborder-left: 8px solid transparent;\n\tleft: 10px;\n\ttop: -16px;\n}\n\n.dom-inspector .tips>div {\n\tdisplay: inline-block;\n\tvertical-align: middle;\n\tfont-size: 12px;\n\tfont-family: Consolas, Menlo, Monaco, Courier, monospace;\n\toverflow: auto;\n}\n\n.dom-inspector .tips .tag {\n\tcolor: #e776e0;\n}\n\n.dom-inspector .tips .id {\n\tcolor: #eba062;\n}\n\n.dom-inspector .tips .class {\n\tcolor: #8dd2fb;\n}\n\n.dom-inspector .tips .line {\n\tcolor: #fff;\n}\n\n.dom-inspector .tips .size {\n\tcolor: #fff;\n}\n\n.dom-inspector-theme-default {\n\n}\n\n.dom-inspector-theme-default .margin {\n\tbackground-color: rgba(255, 81, 81, 0.75);\n}\n\n.dom-inspector-theme-default .border {\n\tbackground-color: rgba(255, 241, 81, 0.75);\n}\n\n.dom-inspector-theme-default .padding {\n\tbackground-color: rgba(81, 255, 126, 0.75);\n}\n\n.dom-inspector-theme-default .content {\n\tbackground-color: rgba(81, 101, 255, 0.75);\n}\n", undefined);
+__$styleInject(".dom-inspector {\r\n    position: fixed;\r\n    pointer-events: none;\r\n}\r\n\r\n.dom-inspector>div {\r\n\tposition: absolute;\r\n}\r\n\r\n.dom-inspector .tips {\r\n\tbackground-color: #333740;\r\n\tfont-size: 0;\r\n\tline-height: 18px;\r\n\tpadding: 3px 10px;\r\n\tposition: fixed;\r\n\tborder-radius: 4px;\r\n\tdisplay: none;\r\n}\r\n\r\n.dom-inspector .tips.reverse{\r\n\r\n}\r\n\r\n.dom-inspector .tips .triangle {\r\n\twidth: 0;\r\n\theight: 0;\r\n\tposition: absolute;\r\n\tborder-top: 8px solid #333740;\r\n\tborder-right: 8px solid transparent;\r\n\tborder-bottom: 8px solid transparent;\r\n\tborder-left: 8px solid transparent;\r\n\tleft: 10px;\r\n\ttop: 24px;\r\n}\r\n\r\n.dom-inspector .tips.reverse .triangle {\r\n\tborder-top: 8px solid transparent;\r\n\tborder-right: 8px solid transparent;\r\n\tborder-bottom: 8px solid #333740;\r\n\tborder-left: 8px solid transparent;\r\n\tleft: 10px;\r\n\ttop: -16px;\r\n}\r\n\r\n.dom-inspector .tips>div {\r\n\tdisplay: inline-block;\r\n\tvertical-align: middle;\r\n\tfont-size: 12px;\r\n\tfont-family: Consolas, Menlo, Monaco, Courier, monospace;\r\n\toverflow: auto;\r\n}\r\n\r\n.dom-inspector .tips .tag {\r\n\tcolor: #e776e0;\r\n}\r\n\r\n.dom-inspector .tips .id {\r\n\tcolor: #eba062;\r\n}\r\n\r\n.dom-inspector .tips .class {\r\n\tcolor: #8dd2fb;\r\n}\r\n\r\n.dom-inspector .tips .line {\r\n\tcolor: #fff;\r\n}\r\n\r\n.dom-inspector .tips .size {\r\n\tcolor: #fff;\r\n}\r\n\r\n.dom-inspector-theme-default {\r\n\r\n}\r\n\r\n.dom-inspector-theme-default .margin {\r\n\tbackground-color: rgba(255, 81, 81, 0.75);\r\n}\r\n\r\n.dom-inspector-theme-default .border {\r\n\tbackground-color: rgba(255, 241, 81, 0.75);\r\n}\r\n\r\n.dom-inspector-theme-default .padding {\r\n\tbackground-color: rgba(81, 255, 126, 0.75);\r\n}\r\n\r\n.dom-inspector-theme-default .content {\r\n\tbackground-color: rgba(81, 101, 255, 0.75);\r\n}\r\n", undefined);
 
 function mixin(target, source) {
 	var targetCopy = target;
@@ -323,15 +324,37 @@ var DomInspector = function () {
 		this._cachedTarget = '';
 		this._throttleOnMove = throttle(this._onMove.bind(this), 100);
 
+		// 新增：外部 click 回调
+		this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+
 		this._init();
 	}
 
 	createClass(DomInspector, [{
 		key: 'enable',
 		value: function enable() {
+			var _this = this;
+
 			if (this.destroyed) return exportObj.warn('Inspector instance has been destroyed! Please redeclare it.');
 			this.overlay.parent.style.display = 'block';
 			this.root.addEventListener('mousemove', this._throttleOnMove);
+			// 新增：click 事件绑定
+			this._onClickHandler = function (e) {
+				// 阻止事件默认行为和冒泡
+				e.preventDefault();
+				e.stopPropagation();
+				e.stopImmediatePropagation();
+
+				var ele = e.target;
+				var tag = ele.tagName ? ele.tagName.toLowerCase() : '';
+				var xpath = _this.getXPath(ele);
+				var selector = _this.getSelector(ele);
+				if (typeof _this.onClick === 'function') {
+					_this.onClick({ tag: tag, xpath: xpath, selector: selector, element: ele, event: e });
+				}
+			};
+			// 使用 capture 模式确保我们的事件处理器优先执行
+			this.root.addEventListener('click', this._onClickHandler, true);
 		}
 	}, {
 		key: 'pause',
@@ -346,6 +369,11 @@ var DomInspector = function () {
 			this.overlay.parent.style.height = 0;
 			this.target = null;
 			this.root.removeEventListener('mousemove', this._throttleOnMove);
+			if (this._onClickHandler) {
+				// 移除事件监听器时也要使用 capture 模式
+				this.root.removeEventListener('click', this._onClickHandler, true);
+				this._onClickHandler = null;
+			}
 		}
 	}, {
 		key: 'destroy',

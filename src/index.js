@@ -26,12 +26,32 @@ class DomInspector {
 		this._cachedTarget = '';
 		this._throttleOnMove = throttle(this._onMove.bind(this), 100);
 
+		// 新增：外部 click 回调
+		this.onClick = typeof options.onClick === 'function' ? options.onClick : null;
+
 		this._init();
 	}
 	enable() {
 		if (this.destroyed) return logger.warn('Inspector instance has been destroyed! Please redeclare it.');
 		this.overlay.parent.style.display = 'block';
 		this.root.addEventListener('mousemove', this._throttleOnMove);
+		// 新增：click 事件绑定
+		this._onClickHandler = (e) => {
+			// 阻止事件默认行为和冒泡
+			e.preventDefault();
+			e.stopPropagation();
+			e.stopImmediatePropagation();
+			
+			const ele = e.target;
+			const tag = ele.tagName ? ele.tagName.toLowerCase() : '';
+			const xpath = this.getXPath(ele);
+			const selector = this.getSelector(ele);
+			if (typeof this.onClick === 'function') {
+				this.onClick({ tag, xpath, selector, element: ele, event: e });
+			}
+		};
+		// 使用 capture 模式确保我们的事件处理器优先执行
+		this.root.addEventListener('click', this._onClickHandler, true);
 	}
 	pause() {
 		this.root.removeEventListener('mousemove', this._throttleOnMove);
@@ -42,6 +62,11 @@ class DomInspector {
 		this.overlay.parent.style.height = 0;
 		this.target = null;
 		this.root.removeEventListener('mousemove', this._throttleOnMove);
+		if (this._onClickHandler) {
+			// 移除事件监听器时也要使用 capture 模式
+			this.root.removeEventListener('click', this._onClickHandler, true);
+			this._onClickHandler = null;
+		}
 	}
 	destroy() {
 		this.destroyed = true;
