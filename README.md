@@ -131,3 +131,21 @@ const inspector = new DomInspector({
 		'margin-left': ''
 	};
 	```
+
+## updated
+
+新增`onClick`事件并阻止冒泡可结合iframe使用做可视化埋点
+
+```
+    const inspector = new DomInspector({
+      onClick: ({ tag, xpath, selector }) => {
+        try {
+          window.parent.postMessage({ type: 'inspectorClick', payload: { tag, xpath, selector }, timestamp: Date.now() }, '*');
+        } catch (e) {
+          console.error('postMessage to parent failed', e);
+        }
+      }
+    });
+```
+
+![](./demo.gif)
