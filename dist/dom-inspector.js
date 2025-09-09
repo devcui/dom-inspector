@@ -344,7 +344,6 @@ var DomInspector = function () {
 				e.preventDefault();
 				e.stopPropagation();
 				e.stopImmediatePropagation();
-
 				var ele = e.target;
 				var tag = ele.tagName ? ele.tagName.toLowerCase() : '';
 				var xpath = _this.getXPath(ele);
@@ -353,7 +352,6 @@ var DomInspector = function () {
 					_this.onClick({ tag: tag, xpath: xpath, selector: selector, element: ele, event: e });
 				}
 			};
-			// 使用 capture 模式确保我们的事件处理器优先执行
 			this.root.addEventListener('click', this._onClickHandler, true);
 		}
 	}, {
@@ -370,7 +368,6 @@ var DomInspector = function () {
 			this.target = null;
 			this.root.removeEventListener('mousemove', this._throttleOnMove);
 			if (this._onClickHandler) {
-				// 移除事件监听器时也要使用 capture 模式
 				this.root.removeEventListener('click', this._onClickHandler, true);
 				this._onClickHandler = null;
 			}

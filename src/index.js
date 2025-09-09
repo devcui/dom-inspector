@@ -41,7 +41,6 @@ class DomInspector {
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
-			
 			const ele = e.target;
 			const tag = ele.tagName ? ele.tagName.toLowerCase() : '';
 			const xpath = this.getXPath(ele);
@@ -50,7 +49,6 @@ class DomInspector {
 				this.onClick({ tag, xpath, selector, element: ele, event: e });
 			}
 		};
-		// 使用 capture 模式确保我们的事件处理器优先执行
 		this.root.addEventListener('click', this._onClickHandler, true);
 	}
 	pause() {
@@ -63,7 +61,6 @@ class DomInspector {
 		this.target = null;
 		this.root.removeEventListener('mousemove', this._throttleOnMove);
 		if (this._onClickHandler) {
-			// 移除事件监听器时也要使用 capture 模式
 			this.root.removeEventListener('click', this._onClickHandler, true);
 			this._onClickHandler = null;
 		}
