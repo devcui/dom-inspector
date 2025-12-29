@@ -1,7 +1,7 @@
 import { addCss, createElement, createSurroundElement, getElementSize, getMaxZIndex, select } from './dom';
 import { warn } from './log';
 import { throttle } from './throttle';
-import { getXpath } from './xpath';
+import { getDom, getXpath } from './xpath';
 
 /**
  * Options for configuring the DomInspector
@@ -10,6 +10,7 @@ import { getXpath } from './xpath';
 export interface DomInspectorOptions {
   root?: HTMLElement;
   theme: string;
+  selected?: string[];
   onClick?: (payload: InspectorClickPayload) => void;
 }
 
@@ -43,6 +44,8 @@ type Overlay = {
   tips: HTMLDivElement;
 };
 
+const SELECTED_COLORS = ['#4286f4', '#f45d48', '#2fbf71', '#f4c542', '#8e44ad', '#2c98f0'];
+
 /**
  * DomInspector class that provides visual overlay for DOM elements
  * 提供 DOM 元素可视化覆盖的 DomInspector 类
@@ -54,6 +57,10 @@ export class DomInspector {
   overlay?: Overlay;
   target?: HTMLElement;
   cachedTarget?: HTMLElement;
+  selected?: string[];
+  selectedLayer?: HTMLDivElement;
+  selectedOutlines: HTMLDivElement[] = [];
+  selectedBadges: HTMLDivElement[] = [];
   destroyed: boolean = false;
   maxZIndex: number = 0;
   throttleOnMove: (e: MouseEvent) => void;
@@ -70,6 +77,7 @@ export class DomInspector {
     this.doc = window.document;
     this.root = options?.root || select('body') || undefined;
     this.theme = options?.theme || 'dom-inspector-theme-default';
+    this.selected = options?.selected || [];
     this.destroyed = false;
     this.maxZIndex = getMaxZIndex();
     this.onClick = options?.onClick;
@@ -369,12 +377,93 @@ export class DomInspector {
     return getXpath(element);
   }
 
+  enableSelected(): void {
+    if (!this.selected || this.selected.length === 0) return;
+    if (this.destroyed) {
+      warn('DomInspector has been destroyed and cannot enable selected markers.');
+      return;
+    }
+
+    this.disableSelected();
+
+    const parent = this.root || this.doc?.body;
+    if (!parent) {
+      warn('enableSelected: root element is not defined.');
+      return;
+    }
+
+    this.selectedLayer = createElement('div', {
+      class: `dom-inspector-selected-layer ${this.theme}`,
+      style: `position: fixed; top: 0; left: 0; pointer-events: none; z-index: ${this.maxZIndex + 2};`,
+    }) as HTMLDivElement;
+    parent.appendChild(this.selectedLayer);
+
+    this.selected.forEach((xpath, index) => {
+      const element = getDom(xpath, parent);
+      if (!element) {
+        warn(`enableSelected: element not found for xpath "${xpath}".`);
+        return;
+      }
+
+      const size = getElementSize(element);
+      if (!size) return;
+
+      const colorIndex = index % SELECTED_COLORS.length;
+
+      const outline = createElement('div', {
+        class: 'dom-inspector-selected-outline',
+        'data-xpath': xpath,
+      }) as HTMLDivElement;
+
+      outline.classList.add(`color-${colorIndex}`);
+
+      const outlineTop = size.y + (size.margin.top ?? 0);
+      const outlineLeft = size.x + (size.margin.left ?? 0);
+
+      addCss(outline, {
+        top: `${outlineTop}px`,
+        left: `${outlineLeft}px`,
+        width: `${size.borderBoxWidth}px`,
+        height: `${size.borderBoxHeight}px`,
+      });
+
+      const badge = createElement('div', {
+        class: 'dom-inspector-selected-badge',
+        'data-xpath': xpath,
+      }) as HTMLDivElement;
+
+      badge.textContent = String(index + 1);
+      badge.classList.add(`color-${colorIndex}`);
+      outline.appendChild(badge);
+
+      this.selectedLayer!.appendChild(outline);
+      this.selectedOutlines.push(outline);
+      this.selectedBadges.push(badge);
+    });
+  }
+
+  disableSelected(): void {
+    this.selectedOutlines.forEach((outline) => outline.remove());
+    this.selectedOutlines = [];
+    this.selectedBadges.forEach((badge) => badge.remove());
+    this.selectedBadges = [];
+
+    if (this.selectedLayer) {
+      this.selectedLayer.innerHTML = '';
+      if (this.selectedLayer.parentElement) {
+        this.selectedLayer.parentElement.removeChild(this.selectedLayer);
+      }
+      this.selectedLayer = undefined;
+    }
+  }
+
   /**
    * Destroys the inspector and cleans up resources
    * 销毁检查器并清理资源
    */
   destroy(): void {
     this.disable();
+    this.disableSelected();
     this.overlay = undefined;
     this.destroyed = true;
   }

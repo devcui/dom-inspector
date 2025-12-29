@@ -21,6 +21,54 @@
 
 }
 
+.dom-inspector-selected-layer {
+	position: fixed;
+	top: 0;
+	left: 0;
+	pointer-events: none;
+}
+
+.dom-inspector-selected-outline {
+	position: absolute;
+	border: 1px solid rgba(66, 134, 244, 0.9);
+	box-shadow: 0 0 0 1px rgba(66, 134, 244, 0.25);
+	background: transparent;
+	border-radius: 0;
+}
+
+.dom-inspector-selected-badge {
+	position: absolute;
+	min-width: 20px;
+	padding: 2px 6px;
+	color: #fff;
+	background-color: rgba(51, 55, 64, 0.96);
+	border: 1px solid rgba(66, 134, 244, 0.9);
+	border-radius: 0;
+	font-size: 12px;
+	line-height: 16px;
+	text-align: center;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+	font-weight: 600;
+	pointer-events: none;
+	top: -1px;
+	right: -1px;
+	transform: translateY(-100%);
+}
+
+.dom-inspector-selected-outline.color-0 { border-color: #4286f4; box-shadow: 0 0 0 1px rgba(66, 134, 244, 0.25); }
+.dom-inspector-selected-outline.color-1 { border-color: #f45d48; box-shadow: 0 0 0 1px rgba(244, 93, 72, 0.25); }
+.dom-inspector-selected-outline.color-2 { border-color: #2fbf71; box-shadow: 0 0 0 1px rgba(47, 191, 113, 0.25); }
+.dom-inspector-selected-outline.color-3 { border-color: #f4c542; box-shadow: 0 0 0 1px rgba(244, 197, 66, 0.25); }
+.dom-inspector-selected-outline.color-4 { border-color: #8e44ad; box-shadow: 0 0 0 1px rgba(142, 68, 173, 0.25); }
+.dom-inspector-selected-outline.color-5 { border-color: #2c98f0; box-shadow: 0 0 0 1px rgba(44, 152, 240, 0.25); }
+
+.dom-inspector-selected-badge.color-0 { border-color: #4286f4; background-color: rgba(66, 134, 244, 0.96); }
+.dom-inspector-selected-badge.color-1 { border-color: #f45d48; background-color: rgba(244, 93, 72, 0.96); }
+.dom-inspector-selected-badge.color-2 { border-color: #2fbf71; background-color: rgba(47, 191, 113, 0.96); }
+.dom-inspector-selected-badge.color-3 { border-color: #f4c542; background-color: rgba(244, 197, 66, 0.96); }
+.dom-inspector-selected-badge.color-4 { border-color: #8e44ad; background-color: rgba(142, 68, 173, 0.96); }
+.dom-inspector-selected-badge.color-5 { border-color: #2c98f0; background-color: rgba(44, 152, 240, 0.96); }
+
 .dom-inspector .tips .triangle {
 	width: 0;
 	height: 0;
