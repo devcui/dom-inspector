@@ -20,6 +20,7 @@ Lightweight DOM overlay that visualizes margin, border, padding, and size while 
 - Click callback returns tag, XPath, the element itself, and the original mouse event for downstream tooling.
 - XPath helpers to build and resolve deterministic absolute paths; DOM helpers include sizing, position (with cross-frame support), and safe element creation.
 - `throttle` to keep overlay updates smooth under frequent mousemove; logging helpers for consistent console output.
+- Optional `selected` XPaths render numbered, color-coded outlines with tab-like labels for quick multi-target identification; toggle via `enableSelected` / `disableSelected`.
 - Written in TypeScript; ships as ESM/CJS with declaration files for typed projects.
 
 ## Install / 安装
@@ -64,6 +65,7 @@ const node = getDom(xpath!);
 - `constructor({ root?, theme, onClick? })`: create overlay; `root` defaults to `document.body`; `onClick` receives `{ tag, xpath, element, event }`.
 - `enable()`: show overlay and start listeners.
 - `disable()`: hide overlay and remove listeners.
+- `enableSelected() / disableSelected()`: show or hide numbered, color-coded outlines for the `selected` XPath list passed to the constructor.
 - `destroy()`: disable and mark instance unusable.
 - `getXPath(element)`: safe wrapper to compute XPath.
 
