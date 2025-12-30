@@ -9,18 +9,16 @@
  * @returns A throttled version of the provided function
  *          提供函数的节流版本
  */
-export function throttle<T extends (...args: any[]) => void>(func: T, wait = 100): (...args: Parameters<T>) => void {
+export function throttle<T extends (...args: unknown[]) => void>(func: T, wait = 100): (...args: Parameters<T>) => void {
   let lastTime = 0;
   let timeout: ReturnType<typeof setTimeout> | null = null;
   let lastArgs: Parameters<T> | null = null;
-  let lastThis: unknown;
 
   return function (this: unknown, ...args: Parameters<T>) {
     const now = Date.now();
     const remaining = wait - (now - lastTime);
 
     lastArgs = args;
-    lastThis = this;
 
     if (remaining <= 0) {
       if (timeout) {
@@ -28,7 +26,7 @@ export function throttle<T extends (...args: any[]) => void>(func: T, wait = 100
         timeout = null;
       }
       lastTime = now;
-      func.apply(lastThis, lastArgs);
+      func.apply(this, lastArgs);
       lastArgs = null;
     } else if (!timeout) {
       timeout = setTimeout(() => {
@@ -36,7 +34,7 @@ export function throttle<T extends (...args: any[]) => void>(func: T, wait = 100
         timeout = null;
 
         if (lastArgs) {
-          func.apply(lastThis, lastArgs);
+          func.apply(this, lastArgs);
           lastArgs = null;
         }
       }, remaining);
