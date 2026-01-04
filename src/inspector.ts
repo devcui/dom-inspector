@@ -155,15 +155,14 @@ export class DomInspector {
   /**
    * Handles mouse movement to update the overlay
    * 处理鼠标移动以更新覆盖层
-   * @param args - Arguments from the mouse event
-   *               鼠标事件的参数
+   * @param event - Mouse event
+   *                鼠标事件
    */
-  onMove(...args: unknown[]): void {
-    const e: MouseEvent = args[0] as MouseEvent;
-    this.target = e.target as HTMLElement;
+  onMove(event: MouseEvent): void {
+    this.target = event.target as HTMLElement;
     if (this.target === this.cachedTarget) return;
     this.cachedTarget = this.target;
-    const elementSize = getElementSize(e.target as HTMLElement);
+    const elementSize = getElementSize(event.target as HTMLElement);
     if (!elementSize) return;
 
     const contentWidth = elementSize.contentWidth ?? elementSize.borderBoxWidth - elementSize.border.left - elementSize.border.right - elementSize.padding.left - elementSize.padding.right;

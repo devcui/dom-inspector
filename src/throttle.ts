@@ -9,12 +9,12 @@
  * @returns A throttled version of the provided function
  *          提供函数的节流版本
  */
-export function throttle<T extends (...args: unknown[]) => void>(func: T, wait = 100): (...args: Parameters<T>) => void {
+export function throttle<Args extends unknown[]>(func: (...args: Args) => void, wait = 100): (...args: Args) => void {
   let lastTime = 0;
   let timeout: ReturnType<typeof setTimeout> | null = null;
-  let lastArgs: Parameters<T> | null = null;
+  let lastArgs: Args | null = null;
 
-  return function (this: unknown, ...args: Parameters<T>) {
+  return function (this: unknown, ...args: Args) {
     const now = Date.now();
     const remaining = wait - (now - lastTime);
 
